@@ -114,6 +114,34 @@ class KOllamaClient(
     }
 
     /**
+     * Loads a model.
+     *
+     * @param name The name of the model to load.
+     * @return A Boolean indicating success.
+     */
+    suspend fun loadModel(name: String): Boolean {
+        val response = httpClient.post("$baseUrl/api/generate") {
+            contentType(ContentType.Application.Json)
+            setBody(GenerateRequest(name))
+        }
+        return response.status.isSuccess()
+    }
+
+    /**
+     * Unloads a model.
+     *
+     * @param name The name of the model to unload.
+     * @return A Boolean indicating success.
+     */
+    suspend fun unloadModel(name: String): Boolean {
+        val response = httpClient.post("$baseUrl/api/generate") {
+            contentType(ContentType.Application.Json)
+            setBody(GenerateRequest(name, keepAliveFor = "0"))
+        }
+        return response.status.isSuccess()
+    }
+
+    /**
      * Generates a response from the model using a simplified parameter list.
      *
      * This is a convenience overload of [generate] that creates a [GenerateRequest] for you.

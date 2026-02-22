@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GenerateRequest(
     val model: String,
-    val prompt: String,
+    val prompt: String? = null,
     val suffix: String? = null,
     val images: List<String>? = null,
     val format: String = "json",
