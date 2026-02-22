@@ -1,6 +1,6 @@
-package datamodels.model
+package net.blophy.nova.kollama.datamodels.model
 
-import datamodels.ChatMessage
+import net.blophy.nova.kollama.datamodels.ChatMessage
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement

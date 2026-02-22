@@ -1,4 +1,4 @@
-package datamodels
+package net.blophy.nova.kollama.datamodels
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

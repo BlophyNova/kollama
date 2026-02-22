@@ -1,6 +1,8 @@
-package dsl
+package net.blophy.nova.kollama.dsl
 
-import datamodels.*
+import net.blophy.nova.kollama.datamodels.GenerateOptions
+import net.blophy.nova.kollama.datamodels.GenerateRequest
+import net.blophy.nova.kollama.datamodels.ThinkMode
 
 @KOllamaDSL
 class GenerateOptionsBuilder {

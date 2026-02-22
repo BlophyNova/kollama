@@ -1,8 +1,13 @@
-package dsl
+package net.blophy.nova.kollama.dsl
 
-import datamodels.ChatMessage
-import datamodels.model.*
+import net.blophy.nova.kollama.datamodels.ChatMessage
 import kotlinx.serialization.json.JsonElement
+import net.blophy.nova.kollama.datamodels.model.CopyModelRequest
+import net.blophy.nova.kollama.datamodels.model.CreateModelRequest
+import net.blophy.nova.kollama.datamodels.model.DeleteModelRequest
+import net.blophy.nova.kollama.datamodels.model.PullModelRequest
+import net.blophy.nova.kollama.datamodels.model.PushModelRequest
+import net.blophy.nova.kollama.datamodels.model.ShowModelRequest
 
 @KOllamaDSL
 class ShowModelRequestBuilder {

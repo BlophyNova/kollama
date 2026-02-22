@@ -1,3 +1,5 @@
+package net.blophy.nova.kollama
+
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -8,12 +10,12 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
-import datamodels.*
-import datamodels.model.*
-import dsl.*
+import net.blophy.nova.kollama.datamodels.*
+import net.blophy.nova.kollama.datamodels.model.*
+import net.blophy.nova.kollama.dsl.*
 
 /**
- * KOllamaClient - Kotlin wrapper for Ollama API.
+ * net.blophy.nova.kollama.KOllamaClient - Kotlin wrapper for Ollama API.
  *
  * This class provides a convenient way to interact with Ollama's API from Kotlin applications.
  * It supports model generation, chat, management (list, show, pull, push, create, delete, copy),
@@ -410,7 +412,7 @@ class KOllamaClient(
      * }
      * ```
      *
-     * @param block A lambda with receiver that configures a [ChatRequestBuilder].
+     * @param block A lambda with receiver that configures a [net.blophy.nova.kollama.dsl.ChatRequestBuilder].
      * @return A [ChatResponse] containing the model's reply message and metadata.
      * @throws OllamaHTTPException If the HTTP request fails.
      */

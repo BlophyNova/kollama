@@ -1,6 +1,6 @@
-package datamodels.serializers
+package net.blophy.nova.kollama.datamodels.serializers
 
-import datamodels.ThinkMode
+import net.blophy.nova.kollama.datamodels.ThinkMode
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*

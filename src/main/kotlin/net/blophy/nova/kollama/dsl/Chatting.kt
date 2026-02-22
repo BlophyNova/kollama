@@ -1,7 +1,13 @@
-package dsl
+package net.blophy.nova.kollama.dsl
 
 import kotlinx.serialization.json.JsonElement
-import datamodels.*
+import net.blophy.nova.kollama.datamodels.ChatMessage
+import net.blophy.nova.kollama.datamodels.ChatRequest
+import net.blophy.nova.kollama.datamodels.ChatRole
+import net.blophy.nova.kollama.datamodels.ThinkMode
+import net.blophy.nova.kollama.datamodels.ToolFunction
+import net.blophy.nova.kollama.datamodels.ToolType
+import net.blophy.nova.kollama.datamodels.ToolsCallWrapper
 
 @KOllamaDSL
 class ToolFunctionBuilder {

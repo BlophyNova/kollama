@@ -1,27 +1,31 @@
-package datamodels
+package net.blophy.nova.kollama.datamodels
 
-import kotlinx.serialization.EncodeDefault
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class GenerateRequest(
-    val model: String,
-    val prompt: String,
-    val suffix: String? = null,
+data class ChatMessage(
+    val role: ChatRole,
+    val content: String,
+    val thinking: String? = null,
     val images: List<String>? = null,
-    val format: String = "json",
-    @SerialName("system")
-    val systemPrompt: String? = null,
-    @EncodeDefault
+    val callableTools: List<ToolsCallWrapper>? = null
+)
+
+
+
+@Serializable
+data class ChatRequest(
+    val model: String,
+    val messages: List<ChatMessage>,
+    val tools: List<Map<ToolType, ToolFunction>>? = null,
+    val format: String? = null,
+    val options: GenerateOptions? = null,
     val stream: Boolean = false,
     @SerialName("think")
     val thinkMode: ThinkMode? = null,
-    val raw: Boolean = false,
-    val keepAliveFor: String? = null, // Duration to keep model loaded (e.g., "5m", "30m")
-    val options: GenerateOptions? = null,
+    @SerialName("keep_alive")
+    val keepAliveFor: String? = null, // Duration to keep model loaded
     @SerialName("logprobs")
     val showLogprobs: Boolean = false,
     @SerialName("top_logprobs")
@@ -29,14 +33,12 @@ data class GenerateRequest(
 )
 
 @Serializable
-data class GenerateResponse(
+data class ChatResponse(
     val model: String,
     @SerialName("created_at")
     val createdAt: String,
-    val response: String,
-    val thinking: String,
+    val message: ChatMessage,
     val done: Boolean,
-    val context: List<Int>? = null,
     @SerialName("done_reason")
     val doneReason: String? = null,
     @SerialName("total_duration")

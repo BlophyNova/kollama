@@ -1,6 +1,6 @@
-package dsl
+package net.blophy.nova.kollama.dsl
 
-import datamodels.*
+import net.blophy.nova.kollama.datamodels.EmbeddingsRequest
 
 @KOllamaDSL
 class EmbeddingsRequestBuilder {
