@@ -1,13 +1,8 @@
 package net.blophy.nova.kollama.dsl
 
-import net.blophy.nova.kollama.datamodels.ChatMessage
 import kotlinx.serialization.json.JsonElement
-import net.blophy.nova.kollama.datamodels.model.CopyModelRequest
-import net.blophy.nova.kollama.datamodels.model.CreateModelRequest
-import net.blophy.nova.kollama.datamodels.model.DeleteModelRequest
-import net.blophy.nova.kollama.datamodels.model.PullModelRequest
-import net.blophy.nova.kollama.datamodels.model.PushModelRequest
-import net.blophy.nova.kollama.datamodels.model.ShowModelRequest
+import net.blophy.nova.kollama.datamodels.ChatMessage
+import net.blophy.nova.kollama.datamodels.model.*
 
 @KOllamaDSL
 class ShowModelRequestBuilder {
@@ -65,7 +60,6 @@ class CreateModelRequestBuilder {
     var parameters: Map<String, JsonElement>? = null
     var messageHistory: List<ChatMessage>? = null
     var quantize: String? = null
-    var stream: Boolean = true
 
     fun build(): CreateModelRequest = CreateModelRequest(
         name = name,
@@ -76,7 +70,7 @@ class CreateModelRequestBuilder {
         parameters = parameters,
         messageHistory = messageHistory,
         quantize = quantize,
-        stream = stream
+        stream = false
     )
 }
 

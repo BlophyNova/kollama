@@ -39,7 +39,6 @@ class GenerateRequestBuilder {
     private val imageList = mutableListOf<String>()
     var format: String = "json"
     var systemPrompt: String? = null
-    var stream: Boolean = false
     var thinkMode: ThinkMode? = null
     var raw: Boolean = false
     var keepAliveFor: String? = null
@@ -62,7 +61,7 @@ class GenerateRequestBuilder {
         images = imageList.takeIf { it.isNotEmpty() },
         format = format,
         systemPrompt = systemPrompt,
-        stream = stream,
+        stream = false,
         thinkMode = thinkMode,
         raw = raw,
         keepAliveFor = keepAliveFor,

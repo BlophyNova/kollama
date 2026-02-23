@@ -1,13 +1,7 @@
 package net.blophy.nova.kollama.dsl
 
 import kotlinx.serialization.json.JsonElement
-import net.blophy.nova.kollama.datamodels.ChatMessage
-import net.blophy.nova.kollama.datamodels.ChatRequest
-import net.blophy.nova.kollama.datamodels.ChatRole
-import net.blophy.nova.kollama.datamodels.ThinkMode
-import net.blophy.nova.kollama.datamodels.ToolFunction
-import net.blophy.nova.kollama.datamodels.ToolType
-import net.blophy.nova.kollama.datamodels.ToolsCallWrapper
+import net.blophy.nova.kollama.datamodels.*
 
 @KOllamaDSL
 class ToolFunctionBuilder {
@@ -54,7 +48,6 @@ class ChatRequestBuilder {
     private val toolMaps = mutableListOf<Map<ToolType, ToolFunction>>()
     var format: String? = null
     private var optionsBuilder: GenerateOptionsBuilder? = null
-    var stream: Boolean = false
     var thinkMode: ThinkMode? = null
     var keepAliveFor: String? = null
     var showLogprobs: Boolean = false
@@ -82,7 +75,7 @@ class ChatRequestBuilder {
         tools = toolMaps.takeIf { it.isNotEmpty() },
         format = format,
         options = optionsBuilder?.build(),
-        stream = stream,
+        stream = false,
         thinkMode = thinkMode,
         keepAliveFor = keepAliveFor,
         showLogprobs = showLogprobs,
