@@ -32,12 +32,12 @@ class GenerateOptionsBuilder {
 }
 
 @KOllamaDSL
-class GenerateRequestBuilder {
+class GenerateRequestBuilder internal constructor(private val stream: Boolean = false){
     var model: String = ""
     var prompt: String = ""
     var suffix: String? = null
     private val imageList = mutableListOf<String>()
-    var format: String = "json"
+    var format: String? = null
     var systemPrompt: String? = null
     var thinkMode: ThinkMode? = null
     var raw: Boolean = false
@@ -61,7 +61,7 @@ class GenerateRequestBuilder {
         images = imageList.takeIf { it.isNotEmpty() },
         format = format,
         systemPrompt = systemPrompt,
-        stream = false,
+        stream = stream,
         thinkMode = thinkMode,
         raw = raw,
         keepAliveFor = keepAliveFor,
@@ -73,3 +73,6 @@ class GenerateRequestBuilder {
 
 fun generateRequest(block: GenerateRequestBuilder.() -> Unit): GenerateRequest =
     GenerateRequestBuilder().apply(block).build()
+
+fun generateRequestFlow(block: GenerateRequestBuilder.() -> Unit): GenerateRequest =
+    GenerateRequestBuilder(true).apply(block).build()

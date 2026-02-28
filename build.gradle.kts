@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "net.blophy.nova"
-version = "0.1.2"
+version = "0.2.0"
 
 repositories {
     mavenCentral()
@@ -20,6 +20,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:${ktorVersion}")
     implementation("io.ktor:ktor-client-content-negotiation:${ktorVersion}")
     implementation("io.ktor:ktor-client-logging:${ktorVersion}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation("ch.qos.logback:logback-classic:${logbackVersion}")
     testImplementation("io.ktor:ktor-client-mock:${ktorVersion}")
     testImplementation(kotlin("test"))

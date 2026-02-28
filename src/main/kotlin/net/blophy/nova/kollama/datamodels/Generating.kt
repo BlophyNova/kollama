@@ -12,7 +12,7 @@ data class GenerateRequest(
     val prompt: String? = null,
     val suffix: String? = null,
     val images: List<String>? = null,
-    val format: String = "json",
+    val format: String? = null,
     @SerialName("system")
     val systemPrompt: String? = null,
     @EncodeDefault
@@ -34,7 +34,7 @@ data class GenerateResponse(
     @SerialName("created_at")
     val createdAt: String,
     val response: String,
-    val thinking: String,
+    val thinking: String? = null,
     val done: Boolean,
     val context: List<Int>? = null,
     @SerialName("done_reason")

@@ -42,7 +42,7 @@ fun message(block: ChatMessageBuilder.() -> Unit): ChatMessage =
     ChatMessageBuilder().apply(block).build()
 
 @KOllamaDSL
-class ChatRequestBuilder {
+class ChatRequestBuilder internal constructor(private val stream: Boolean = false){
     var model: String = ""
     private val messageList = mutableListOf<ChatMessage>()
     private val toolMaps = mutableListOf<Map<ToolType, ToolFunction>>()
@@ -75,7 +75,7 @@ class ChatRequestBuilder {
         tools = toolMaps.takeIf { it.isNotEmpty() },
         format = format,
         options = optionsBuilder?.build(),
-        stream = false,
+        stream = stream,
         thinkMode = thinkMode,
         keepAliveFor = keepAliveFor,
         showLogprobs = showLogprobs,
@@ -85,3 +85,6 @@ class ChatRequestBuilder {
 
 fun chatRequest(block: ChatRequestBuilder.() -> Unit): ChatRequest =
     ChatRequestBuilder().apply(block).build()
+
+fun chatFlowRequest(block: ChatRequestBuilder.() -> Unit): ChatRequest =
+    ChatRequestBuilder(true).apply(block).build()

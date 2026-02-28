@@ -7,15 +7,19 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.utils.io.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.serialization.json.Json
 import net.blophy.nova.kollama.datamodels.*
 import net.blophy.nova.kollama.datamodels.model.*
 import net.blophy.nova.kollama.dsl.*
 
 /**
- * net.blophy.nova.kollama.KOllamaClient - Kotlin wrapper for Ollama API.
+ * [KOllamaClient] - Kotlin wrapper for Ollama API.
  *
  * This class provides a convenient way to interact with Ollama's API from Kotlin applications.
  * It supports model generation, chat, management (list, show, pull, push, create, delete, copy),
@@ -114,10 +118,43 @@ class KOllamaClient(
     }
 
     /**
+     * Generates a streaming response from the model based on the provided [GenerateRequest].
+     *
+     * This corresponds to the Ollama generate endpoint (`/api/generate`).
+     *
+     * @param request The [GenerateRequest] containing the model name, prompt, and optional parameters.
+     * @return A [Flow]<[GenerateResponse]> containing the generated text and metadata.
+     * @throws OllamaHTTPException If the HTTP request fails or a non‑success status code is returned.
+     * @throws OllamaServerException If the server returns a non-200 status code.
+     */
+    fun generateFlow(request: GenerateRequest) = channelFlow {
+        httpClient.preparePost("$baseUrl/api/generate") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.execute { response ->
+            if (response.status != HttpStatusCode.OK) {
+                val errorText = response.bodyAsText()
+                throw OllamaServerException("Ollama API error: ${response.status} - $errorText")
+            }
+
+            val channel: ByteReadChannel = response.body()
+
+            while (!channel.isClosedForRead) {
+                val line = channel.readLineStrict() ?: continue
+                if (line.isBlank()) continue
+                val chunk = Json.decodeFromString<GenerateResponse>(line)
+                send(chunk)
+                if (chunk.done) break
+            }
+        }
+    }
+
+    /**
      * Loads a model.
      *
      * @param name The name of the model to load.
      * @return A Boolean indicating success.
+     * @throws OllamaHTTPException If the HTTP request fails or a non‑success status code is returned.
      */
     suspend fun loadModel(name: String): Boolean {
         val response = httpClient.post("$baseUrl/api/generate") {
@@ -132,6 +169,7 @@ class KOllamaClient(
      *
      * @param name The name of the model to unload.
      * @return A Boolean indicating success.
+     * @throws OllamaHTTPException If the HTTP request fails or a non‑success status code is returned.
      */
     suspend fun unloadModel(name: String): Boolean {
         val response = httpClient.post("$baseUrl/api/generate") {
@@ -162,6 +200,27 @@ class KOllamaClient(
     }
 
     /**
+     * Generates a streaming response from the model using a simplified parameter list.
+     *
+     * This is a convenience overload of [generateFlow] that creates a [GenerateRequest] for you.
+     *
+     * @param model The name of the model to use (e.g., "llama2").
+     * @param prompt The input prompt for generation.
+     * @param system Optional system prompt to set the context.
+     * @return A [Flow]<[GenerateResponse]> containing the generated text and metadata.
+     * @throws OllamaHTTPException If the HTTP request fails.
+     * @throws OllamaServerException If the server returns a non-200 status code.
+     */
+    fun generateFlow(model: String, prompt: String, system: String? = null): Flow<GenerateResponse> {
+        val request = GenerateRequest(
+            model = model,
+            prompt = prompt,
+            systemPrompt = system
+        )
+        return generateFlow(request)
+    }
+
+    /**
      * Sends a chat message to the model and receives a response.
      *
      * This corresponds to the Ollama chat endpoint (`/api/chat`).
@@ -176,6 +235,38 @@ class KOllamaClient(
             setBody(request)
         }
         return response.body()
+    }
+
+    /**
+     * Sends a chat message to the model and receives a **streaming** response.
+     *
+     * This corresponds to the Ollama chat endpoint (`/api/chat`).
+     *
+     * @param request The [ChatRequest] containing the model name, conversation messages, and options.
+     * @return A [Flow]<[ChatResponse]> containing the model's reply message and metadata.
+     * @throws OllamaHTTPException If the HTTP request fails.
+     * @throws OllamaServerException If the server returns a non-200 status code.
+     */
+    fun chatFlow(request: ChatRequest) = channelFlow {
+        httpClient.preparePost("$baseUrl/api/chat") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.execute { response ->
+            if (response.status != HttpStatusCode.OK) {
+                val errorText = response.bodyAsText()
+                throw OllamaServerException("Ollama API error: ${response.status} - $errorText")
+            }
+
+            val channel: ByteReadChannel = response.body()
+
+            while (!channel.isClosedForRead) {
+                val line = channel.readLineStrict() ?: continue
+                if (line.isBlank()) continue
+                val chunk = Json.decodeFromString<ChatResponse>(line)
+                send(chunk)
+                if (chunk.done) break
+            }
+        }
     }
 
     /**
@@ -194,6 +285,25 @@ class KOllamaClient(
             messages = messages
         )
         return chat(request)
+    }
+
+    /**
+     * Sends a chat message to the model using a simplified parameter list.
+     *
+     * This is a convenience overload of [chatFlow] that creates a [ChatRequest] for you.
+     *
+     * @param model The name of the model to use.
+     * @param messages A list of [ChatMessage] representing the conversation history.
+     * @return A [Flow]<[ChatResponse]> containing the model's reply message and metadata.
+     * @throws OllamaHTTPException If the HTTP request fails.
+     * @throws OllamaServerException If the server returns a non-200 status code.
+     */
+    fun chatFlow(model: String, messages: List<ChatMessage>): Flow<ChatResponse> {
+        val request = ChatRequest(
+            model = model,
+            messages = messages
+        )
+        return chatFlow(request)
     }
 
     /**
@@ -364,7 +474,7 @@ class KOllamaClient(
      * This corresponds to the Ollama embeddings endpoint (`/api/embeddings`).
      *
      * @param request The [EmbeddingsRequest] containing the model name and input text.
-     * @return An [EmbeddingsResponse] containing the generated embedding vector.
+     * @return A [EmbeddingsResponse] containing the generated embedding vector.
      * @throws OllamaHTTPException If the HTTP request fails.
      */
     suspend fun embeddings(request: EmbeddingsRequest): EmbeddingsResponse {
@@ -422,6 +532,31 @@ class KOllamaClient(
         generate(generateRequest(block))
 
     /**
+     * Generates a streaming response using a DSL builder.
+     *
+     * This method allows you to construct a [GenerateRequest] using a type-safe builder DSL.
+     * It is equivalent to calling [generateFlow] with a manually built request object.
+     *
+     * Example:
+     * ```
+     * val response = client.generateFlow {
+     *     model = "llama3"
+     *     prompt = "Explain quantum computing"
+     *     options {
+     *         temperature = 0.7f
+     *     }
+     * }
+     * ```
+     *
+     * @param block A lambda with receiver that configures a [GenerateRequestBuilder].
+     * @return A [Flow]<[GenerateResponse]> containing the generated text and metadata.
+     * @throws OllamaHTTPException If the HTTP request fails.
+     * @throws OllamaServerException If the server returns a non-200 status code.
+     */
+    fun generateFlow(block: GenerateRequestBuilder.() -> Unit): Flow<GenerateResponse> =
+        generateFlow(generateRequestFlow(block))
+
+    /**
      * Sends a chat message using a DSL builder.
      *
      * This method allows you to construct a [ChatRequest] using a type-safe builder DSL.
@@ -446,6 +581,33 @@ class KOllamaClient(
      */
     suspend fun chat(block: ChatRequestBuilder.() -> Unit): ChatResponse =
         chat(chatRequest(block))
+
+    /**
+     * Sends a chat message and receives a **streaming** response using a DSL builder.
+     *
+     * This method allows you to construct a [ChatRequest] using a type-safe builder DSL.
+     *
+     * Example:
+     * ```
+     * val response = client.chatFlow {
+     *     model = "llama3"
+     *     message {
+     *         role = ChatRole.User
+     *         content = "Hello!"
+     *     }
+     *     options {
+     *         temperature = 0.5f
+     *     }
+     * }
+     * ```
+     *
+     * @param block A lambda with receiver that configures a [net.blophy.nova.kollama.dsl.ChatRequestBuilder].
+     * @return A [Flow]<[ChatResponse]> containing the model's reply message and metadata.
+     * @throws OllamaHTTPException If the HTTP request fails.
+     * @throws OllamaServerException If the server returns a non-200 status code.
+     */
+    fun chatFlow(block: ChatRequestBuilder.() -> Unit): Flow<ChatResponse> =
+        chatFlow(chatFlowRequest(block))
 
     /**
      * Shows model details using a DSL builder.
@@ -473,7 +635,6 @@ class KOllamaClient(
      * client.pullModel {
      *     name = "llama3"
      *     insecure = false
-     *     stream = true
      * }
      * ```
      *
@@ -582,7 +743,7 @@ class KOllamaClient(
     /**
      * Retrieve the version of the Ollama.
      *
-     * @return The [OllamaVersion] object containing the version of the Ollama service.
+     * @return An [OllamaVersion] object containing the version of the Ollama service.
      */
     suspend fun ollamaVersion(): OllamaVersion {
         val response = httpClient.get("$baseUrl/api/version")
