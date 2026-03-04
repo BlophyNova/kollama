@@ -1,4 +1,6 @@
 # KOllama
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FBlophyNova%2Fkollama.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FBlophyNova%2Fkollama?ref=badge_shield)
+
 
 A Kotlin-first library for [Ollama](https://ollama.ai/), providing idiomatic Kotlin APIs to interact with Ollama's
 server.
@@ -60,6 +62,9 @@ For chat, pulling models, etc., check the KDoc in the code.
 ## License
 
 This project is **dual-licensed**:
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FBlophyNova%2Fkollama.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FBlophyNova%2Fkollama?ref=badge_large)
 
 ### GNU Affero General Public License v3.0 (AGPLv3)
 
