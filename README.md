@@ -40,12 +40,11 @@ Here's a simple example to generate text:
 fun main() = runBlocking {
     val ollama = KOllamaClient()
     val r = ollama.chat {
-        model = "qwen3-vl:latest"
+        model = "qwen3.5:latest"
         message {
             role = ChatRole.User
             content = "What is the meaning of life?"
         }
-        stream = false
     }
     println(r.message.content)
 }
